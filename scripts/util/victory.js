@@ -2,14 +2,12 @@ import { world, system, GameMode } from "@minecraft/server";
 
 /**
  * 勝利メッセージを表示し、ゲームをリセット（または停止）する
- * @param {string} title 
- * @param {string} subtitle 
+ * @param {string} message 
  */
-function announceVictory(title, subtitle) {
+function announceVictory(message) {
     for (const player of world.getAllPlayers()) {
-        player.onScreenDisplay.setTitle(title);
-        player.onScreenDisplay.setSubtitle(subtitle);
-        player.sendMessage(`§l§6[勝利判定] §r${title}: ${subtitle}`);
+        player.onScreenDisplay.setTitle(message);
+        player.sendMessage(`§l§6[勝利判定] §r${message}`);
     }
 }
 
@@ -27,7 +25,7 @@ export function checkWerewolfVictory() {
     const livingVillagers = villagers.filter(p => p.getGameMode() === GameMode.survival || p.getGameMode() === GameMode.adventure);
 
     if (livingVillagers.length === 0) {
-        announceVictory("§c人狼の勝利！", "§f市民が全滅しました。");
+        announceVictory("§c人狼の勝利！市民が全滅しました。");
         return true;
     }
     return false;
@@ -53,7 +51,7 @@ export function checkVillagerVictory() {
         for (let i = 0; i < inventory.container.size; i++) {
             const item = inventory.container.getItem(i);
             if (item && item.typeId === victoryItem) {
-                announceVictory("§b市民の勝利！", `§f${villager.name}が§e聖なるダイヤモンド§fを手に入れました。`);
+                announceVictory(`§b市民の勝利！${villager.name}が聖なるダイヤモンドを手に入れました。`);
                 return true;
             }
         }
