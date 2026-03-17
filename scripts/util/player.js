@@ -5,7 +5,7 @@ import { system, world } from "@minecraft/server";
  * @param {import("@minecraft/server").Player} player 
  */
 export function setSpectatorMode(player) {
-    if (!player || !player.isValid()) return;
+    if (!player) return;
     
     system.run(() => {
         // Run gamemode command safely on the next tick
