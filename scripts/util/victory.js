@@ -57,7 +57,7 @@ export function checkVillagerVictory() {
     if (villagers.length === 0) return false;
 
     // 適当なアイテムとして「ダイヤモンド」を勝利条件にします
-    const victoryItem = "minecraft:diamond";
+    const victoryItem = "minecraft:diamond_boots";
 
     for (const villager of villagers) {
         const inventory = villager.getComponent("minecraft:inventory");
@@ -66,7 +66,7 @@ export function checkVillagerVictory() {
         for (let i = 0; i < inventory.container.size; i++) {
             const item = inventory.container.getItem(i);
             if (item && item.typeId === victoryItem) {
-                announceVictory(`§b市民の勝利！${villager.name}が聖なるダイヤモンドを手に入れました。`, "§b市民の勝利");
+                announceVictory(`§b市民の勝利！${villager.name}がダイヤモンドブーツを手に入れました。`, "§b市民の勝利");
                 return true;
             }
         }
