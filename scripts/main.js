@@ -1,3 +1,3 @@
+import { server, world, system } from "@minecraft/server";
 
-
-import "./commands/commands";
+import "./commands/commands.js";
