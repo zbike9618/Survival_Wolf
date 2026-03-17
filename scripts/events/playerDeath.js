@@ -1,4 +1,4 @@
-import { world } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 import { setSpectatorMode } from "../util/player.js";
 import { checkWerewolfVictory } from "../util/victory.js";
 
@@ -8,9 +8,12 @@ world.afterEvents.entityDie.subscribe((event) => {
 
     // 死亡したエンティティがプレイヤーであるか確認
     if (deadEntity?.typeId === "minecraft:player") {
+        deadEntity.addTag("dead_player");
         setSpectatorMode(deadEntity);
         
         // 死亡後に人狼の勝利条件（市民全滅）をチェック
-        checkWerewolfVictory();
+        system.run(() => {
+            checkWerewolfVictory();
+        });
     }
 });

@@ -30,6 +30,7 @@ server.system.beforeEvents.startup.subscribe(ev => {
                     // 以前の役職タグがあればリセットする
                     p.removeTag("werewolf");
                     p.removeTag("villager");
+                    p.removeTag("dead_player"); // 生死タグもリセット
 
                     if (index < werewolfCount) {
                         p.addTag("werewolf");

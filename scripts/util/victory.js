@@ -13,10 +13,6 @@ export function startGame() {
 /**
  * 勝利メッセージを表示し、ゲームをリセット（または停止）する
  * @param {string} message 
- */
-/**
- * 勝利メッセージを表示し、ゲームをリセット（または停止）する
- * @param {string} message 
  * @param {string} title 
  */
 function announceVictory(message, title) {
@@ -50,8 +46,8 @@ export function checkWerewolfVictory() {
     // 市民が一人もいない場合は判定しない
     if (villagers.length === 0) return false;
 
-    // 生きている（サバイバルモードの）市民がいるかチェック
-    const livingVillagers = villagers.filter(p => p.getGameMode() === GameMode.survival || p.getGameMode() === GameMode.adventure);
+    // 生きている市民がいるかチェック（dead_playerタグがついていない人）
+    const livingVillagers = villagers.filter(p => !p.hasTag("dead_player"));
 
     if (livingVillagers.length === 0) {
         announceVictory("§c人狼の勝利！市民が全滅しました。", "§c人狼の勝利");
