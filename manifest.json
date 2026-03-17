@@ -34,6 +34,14 @@
             "version": "beta"
         },
         {
+            "module_name": "@minecraft/server-gametest",
+            "version": "beta"
+        },
+        {
+            "module_name": "@minecraft/server-admin",
+            "version": "beta"
+        },
+        {
             "module_name": "@minecraft/server-ui",
             "version": "beta"
         },
