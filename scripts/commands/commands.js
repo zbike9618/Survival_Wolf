@@ -43,6 +43,8 @@ server.system.beforeEvents.startup.subscribe(ev => {
                 });
 
                 player.sendMessage("ゲームを開始しました。プレイヤーに役職を割り当てました。");
+                player.runCommand("tp @a @s");
+                player.runCommand("gamemode survival @a");
             });
         }
     });
