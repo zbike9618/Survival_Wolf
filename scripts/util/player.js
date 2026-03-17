@@ -9,8 +9,6 @@ export function setSpectatorMode(player) {
 
     system.run(() => {
         // Run gamemode command safely on the next tick
-        player.runCommand("gamemode spectator @s").catch(e => {
-            console.warn("Failed to set spectator mode for player: " + player.name);
-        });
+        player.runCommand("gamemode spectator @s")
     });
 }
