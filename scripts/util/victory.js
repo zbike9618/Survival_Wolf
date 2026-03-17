@@ -14,10 +14,10 @@ export function startGame() {
  * 勝利メッセージを表示し、ゲームをリセット（または停止）する
  * @param {string} message 
  */
-function announceVictory(message) {
+function announceVictory(message, title) {
     isGameActive = false; // 勝利が決まったら判定を停止する
     for (const player of world.getAllPlayers()) {
-        player.onScreenDisplay.setTitle(message);
+        player.onScreenDisplay.setTitle(title);
         player.sendMessage(`§l§6[勝利判定] §r${message}`);
     }
 }
@@ -30,7 +30,7 @@ export function checkWerewolfVictory() {
     if (!isGameActive) return false;
 
     const villagers = world.getAllPlayers().filter(p => p.hasTag("villager"));
-    
+
     // 市民が一人もいない場合は判定しない
     if (villagers.length === 0) return false;
 
@@ -38,7 +38,7 @@ export function checkWerewolfVictory() {
     const livingVillagers = villagers.filter(p => p.getGameMode() === GameMode.survival || p.getGameMode() === GameMode.adventure);
 
     if (livingVillagers.length === 0) {
-        announceVictory("§c人狼の勝利！市民が全滅しました。");
+        announceVictory("§c人狼の勝利！市民が全滅しました。", "§c人狼の勝利");
         return true;
     }
     return false;
@@ -52,7 +52,7 @@ export function checkVillagerVictory() {
     if (!isGameActive) return false;
 
     const villagers = world.getAllPlayers().filter(p => p.hasTag("villager"));
-    
+
     // 市民が一人もいない場合は判定しない
     if (villagers.length === 0) return false;
 
@@ -66,7 +66,7 @@ export function checkVillagerVictory() {
         for (let i = 0; i < inventory.container.size; i++) {
             const item = inventory.container.getItem(i);
             if (item && item.typeId === victoryItem) {
-                announceVictory(`§b市民の勝利！${villager.name}が聖なるダイヤモンドを手に入れました。`);
+                announceVictory(`§b市民の勝利！${villager.name}が聖なるダイヤモンドを手に入れました。`, "§b市民の勝利");
                 return true;
             }
         }
