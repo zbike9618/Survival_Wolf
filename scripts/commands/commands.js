@@ -1,5 +1,6 @@
 import * as server from "@minecraft/server";
 import { world, system } from "@minecraft/server";
+import { startGame } from "../util/victory.js";
 
 server.system.beforeEvents.startup.subscribe(ev => {
     ev.customCommandRegistry.registerCommand({
@@ -15,6 +16,9 @@ server.system.beforeEvents.startup.subscribe(ev => {
             let player = origin.sourceEntity;
             system.run(() => {  // 1tick後に安全に実行
                 const allPlayers = world.getPlayers();
+
+                // 勝利判定の状態をリセットして開始
+                startGame();
 
                 // プレイヤーの配列をシャッフル
                 const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
