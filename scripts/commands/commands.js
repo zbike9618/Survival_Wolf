@@ -30,12 +30,11 @@ server.system.beforeEvents.startup.subscribe(ev => {
                     if (index < werewolfCount) {
                         p.addTag("werewolf");
                         p.sendMessage("§cあなたは【人狼】です。市民を全滅させてください。");
-                        p.onScreenDisplay.setTitle("§cあなたは【人狼】です。\n市民を全滅させてください。");
-                        p.onScreenDisplay.updateSubtitle("§c§lゲーム開始");
+                        p.onScreenDisplay.setTitle("§cあなたは【人狼】です");
                     } else {
                         p.addTag("villager");
                         p.sendMessage("§bあなたは【市民】です。人狼を見つけ出してください。");
-                        p.onScreenDisplay.setTitle("§bあなたは【市民】です。\n人狼を見つけ出してください。");
+                        p.onScreenDisplay.setTitle("§bあなたは【市民】です");
                     }
                 });
 
