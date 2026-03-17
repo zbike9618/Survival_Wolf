@@ -14,11 +14,27 @@ export function startGame() {
  * 勝利メッセージを表示し、ゲームをリセット（または停止）する
  * @param {string} message 
  */
+/**
+ * 勝利メッセージを表示し、ゲームをリセット（または停止）する
+ * @param {string} message 
+ * @param {string} title 
+ */
 function announceVictory(message, title) {
     isGameActive = false; // 勝利が決まったら判定を停止する
+    
+    // 全プレイヤーの役職リストを作成
+    const players = world.getAllPlayers();
+    let resultMessage = "\n§l§e--- 全員の役職 ---§r\n";
+    
+    players.forEach(p => {
+        const role = p.hasTag("werewolf") ? "§c人狼§r" : "§b市民§r";
+        resultMessage += `§7- §f${p.name}: ${role}\n`;
+    });
+
     for (const player of world.getAllPlayers()) {
         player.onScreenDisplay.setTitle(title);
-        player.sendMessage(`§l§6[勝利判定] §r${message}\n[人狼]${player.hasTag("werewolf") ? "§c人狼" : "§b市民"}`);
+        // 勝利メッセージと全員の役職リストを送信
+        player.sendMessage(`§l§6[勝利判定] §r${message}${resultMessage}`);
     }
 }
 
