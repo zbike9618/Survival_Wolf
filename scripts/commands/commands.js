@@ -1,4 +1,5 @@
-import { world, server } from "@minecraft/server";
+import * as server from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 
 server.system.beforeEvents.startup.subscribe(ev => {
     ev.customCommandRegistry.registerCommand({
