@@ -18,7 +18,7 @@ function announceVictory(message, title) {
     isGameActive = false; // 勝利が決まったら判定を停止する
     for (const player of world.getAllPlayers()) {
         player.onScreenDisplay.setTitle(title);
-        player.sendMessage(`§l§6[勝利判定] §r${message}`);
+        player.sendMessage(`§l§6[勝利判定] §r${message}\n[人狼]${player.hasTag("werewolf") ? "§c人狼" : "§b市民"}`);
     }
 }
 
