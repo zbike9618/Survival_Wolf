@@ -11,6 +11,20 @@ export function startGame() {
 }
 
 /**
+ * ゲームを終了状態にする
+ */
+export function endGame() {
+    isGameActive = false;
+}
+
+/**
+ * ゲームが進行中かどうかを返す
+ */
+export function getGameActive() {
+    return isGameActive;
+}
+
+/**
  * 勝利メッセージを表示し、ゲームをリセット（または停止）する
  * @param {string} message 
  * @param {string} title 

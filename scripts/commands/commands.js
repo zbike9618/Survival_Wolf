@@ -1,6 +1,6 @@
 import * as server from "@minecraft/server";
 import { world, system } from "@minecraft/server";
-import { startGame } from "../util/victory.js";
+import { startGame, endGame } from "../util/victory.js";
 
 server.system.beforeEvents.startup.subscribe(ev => {
     ev.customCommandRegistry.registerCommand({
@@ -46,8 +46,53 @@ server.system.beforeEvents.startup.subscribe(ev => {
                 player.sendMessage("ゲームを開始しました。プレイヤーに役職を割り当てました。");
                 player.runCommand("tp @a @s");
                 player.runCommand("gamemode survival @a");
+
+                const intaliitem = [
+                    "minecraft:stick",
+                    "minecraft:stick",
+                    "minecraft:stick",
+                    "minecraft:stick"
+                ];
+
+                for (let i = 0; i < intaliitem.length; i++) {
+                    player.runCommand(`give @a ${intaliitem[i]}`);
+                }
+
+
+                player.runCommand("setblock ~ ~ ~ crafting_table");
             });
         }
     });
 });
 
+server.system.beforeEvents.startup.subscribe(ev => {
+    ev.customCommandRegistry.registerCommand({
+        name: "sv:stop",
+        description: "ゲームを終了するコマンド",
+        permissionLevel: server.CommandPermissionLevel.Any,
+        mandatoryParameters: [],
+        optionalParameters: []
+    }, (origin, arg) => {
+        if (origin.sourceEntity?.typeId === "minecraft:player") {
+            let player = origin.sourceEntity;
+            system.run(() => {
+                const allPlayers = world.getPlayers();
+
+                // 勝利判定の状態をリセットして終了
+                endGame();
+
+                allPlayers.forEach(p => {
+                    // 全プレイヤーの役職タグと生死タグを消去
+                    p.removeTag("werewolf");
+                    p.removeTag("villager");
+                    p.removeTag("dead_player");
+                    
+                    p.sendMessage("§eゲームが強制終了されました。");
+                });
+
+                player.sendMessage("ゲームを終了しました。全員の役職をリセットしました。");
+                world.getDimension("overworld").runCommand("gamemode survival @a");
+            });
+        }
+    });
+});
