@@ -1,12 +1,15 @@
-import * as ui from "@minecraft/server-ui";
 import { system, world } from "@minecraft/server";
-import { default as config } from "../config.js";
+import { default as config } from "../../config.js";
+import { getGameActive, getBorderCenter } from "../core/game.js";
 
 // --- 警告とダメージ処理 ---
 system.runInterval(() => {
+    // ゲームが進行中（sv:startの後）でなければ何もしない
+    if (!getGameActive()) return;
+
     const players = world.getAllPlayers();
     const radius = config.border.radius;
-    const center = config.border.center;
+    const center = getBorderCenter(); // 動的に設定された中心を取得
     const damageMultiplier = config.border.damageMultiplier || 0.5;
     const warningSeconds = config.border.warningSeconds || 10;
     const enabledDimensions = config.border.enabledDimensions || ["minecraft:overworld"];
@@ -60,9 +63,12 @@ system.runInterval(() => {
 
 // --- ボーダー可視化処理 ---
 system.runInterval(() => {
+    // ゲームが進行中（sv:startの後）でなければ何もしない
+    if (!getGameActive()) return;
+
     const players = world.getAllPlayers();
     const radius = config.border.radius;
-    const center = config.border.center;
+    const center = getBorderCenter(); // 動的に設定された中心を取得
     const enabledDimensions = config.border.enabledDimensions || ["minecraft:overworld"];
 
     // 境界線に近い場合、パーティクルを表示

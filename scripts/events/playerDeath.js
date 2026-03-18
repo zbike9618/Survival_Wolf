@@ -1,6 +1,6 @@
 import { world, system } from "@minecraft/server";
 import { setSpectatorMode } from "../util/player.js";
-import { checkWerewolfVictory } from "../util/victory.js";
+import { checkWerewolfVictory } from "../util/core/game.js";
 
 // プレイヤーが死亡したときの処理を監視
 world.afterEvents.entityDie.subscribe((event) => {

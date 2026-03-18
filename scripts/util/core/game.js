@@ -2,12 +2,41 @@ import { world, system, GameMode } from "@minecraft/server";
 
 // ゲームが進行中かどうかを管理するフラグ
 let isGameActive = false;
+let borderCenter = { x: 0, z: 0 };
 
 /**
  * ゲームを開始状態にする
  */
 export function startGame() {
     isGameActive = true;
+}
+
+/**
+ * ゲームを終了状態にする
+ */
+export function endGame() {
+    isGameActive = false;
+}
+
+/**
+ * ゲームが進行中かどうかを返す
+ */
+export function getGameActive() {
+    return isGameActive;
+}
+
+/**
+ * ボーダーの中心座標を設定する
+ */
+export function setBorderCenter(loc) {
+    borderCenter = { x: loc.x, z: loc.z };
+}
+
+/**
+ * ボーダーの中心座標を取得する
+ */
+export function getBorderCenter() {
+    return borderCenter;
 }
 
 /**
