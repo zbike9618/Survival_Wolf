@@ -1,52 +1,78 @@
 import { world, system, GameMode } from "@minecraft/server";
+import { settings } from "./settings.js";
 
-// ゲームが進行中かどうかを管理するフラグ
-let isGameActive = false;
-let borderCenter = { x: 0, y: 0, z: 0 };
+// キーの定義
+// キーの定義
+const IS_ACTIVE_KEY = "sv_is_active";
+const ELAPSED_TICKS_KEY = "sv_elapsed_ticks"; // 経過Tick数
+const BORDER_CENTER_KEY = "sv_border_center";
+
+/**
+ * ゲームが進行中かどうかを返す
+ */
+export function getGameActive() {
+    return world.getDynamicProperty(IS_ACTIVE_KEY) === true;
+}
+
+/**
+ * 経過Tick数を取得
+ */
+export function getGameTicks() {
+    return world.getDynamicProperty(ELAPSED_TICKS_KEY) ?? 0;
+}
 
 /**
  * ゲームを開始状態にする
  */
 export function startGame() {
-    isGameActive = true;
+    world.setDynamicProperty(IS_ACTIVE_KEY, true);
+    world.setDynamicProperty(ELAPSED_TICKS_KEY, 0);
+    world.setTimeOfDay(0); // 開始時は朝にする
+}
+
+/**
+ * ティックを加算する
+ */
+export function incrementGameTicks() {
+    const current = getGameTicks();
+    world.setDynamicProperty(ELAPSED_TICKS_KEY, current + 1);
 }
 
 /**
  * ゲームを終了状態にする
  */
 export function endGame() {
-    isGameActive = false;
+    world.setDynamicProperty(IS_ACTIVE_KEY, false);
 }
 
 /**
  * ゲームが進行中かどうかを返す
  */
-export function getGameActive() {
-    return isGameActive;
-}
+/**
+ * ゲーム開始からの経過Tick数を取得 (互換性のための残し)
+ */
+// getGameTicks は上記で実装済み
 
 /**
  * ボーダーの中心座標を設定する
  */
 export function setBorderCenter(loc) {
-    borderCenter = { x: loc.x, y: loc.y, z: loc.z };
+    world.setDynamicProperty(BORDER_CENTER_KEY, JSON.stringify({ x: loc.x, y: loc.y, z: loc.z }));
 }
 
 /**
  * ボーダーの中心座標を取得する
- * 配列形式 [x, y, z] で返します
  */
 export function getBorderCenter() {
-    return [borderCenter.x, borderCenter.y, borderCenter.z];
+    const saved = world.getDynamicProperty(BORDER_CENTER_KEY);
+    if (!saved) return [0, 0, 0];
+    const loc = JSON.parse(saved);
+    return [loc.x, loc.y, loc.z];
 }
 
-/**
- * 勝利メッセージを表示し、ゲームをリセット（または停止）する
- * @param {string} message 
- * @param {string} title 
- */
 function announceVictory(message, title) {
-    isGameActive = false; // 勝利が決まったら判定を停止する
+    const center = getBorderCenter();
+    world.setDynamicProperty(IS_ACTIVE_KEY, false); // 勝利が決まったら判定を停止する
 
     // 全プレイヤーの役職リストを作成
     const players = world.getAllPlayers();
@@ -62,6 +88,10 @@ function announceVictory(message, title) {
         // 勝利メッセージと全員の役職リストを送信
         player.sendMessage(`§l§6[勝利判定] §r${message}${resultMessage}`);
     }
+    system.runTimeout(() => {
+        world.getDimension("minecraft:overworld").runCommand("gamemode c @a");
+        world.getDimension("minecraft:overworld").runCommand(`tp @a ${center[0]} ${center[1]} ${center[2]}`);
+    }, 20 * 3);
 }
 
 /**
@@ -69,7 +99,7 @@ function announceVictory(message, title) {
  * @returns {boolean} 勝利したかどうか
  */
 export function checkWerewolfVictory() {
-    if (!isGameActive) return false;
+    if (!getGameActive()) return false;
 
     const villagers = world.getAllPlayers().filter(p => p.hasTag("villager"));
 
@@ -91,14 +121,14 @@ export function checkWerewolfVictory() {
  * @returns {boolean} 勝利したかどうか
  */
 export function checkVillagerVictory() {
-    if (!isGameActive) return false;
+    if (!getGameActive()) return false;
 
     const villagers = world.getAllPlayers().filter(p => p.hasTag("villager"));
 
     // 市民が一人もいない場合は判定しない
     if (villagers.length === 0) return false;
 
-    const victoryItem = "minecraft:diamond_boots";
+    const victoryItem = settings.victoryItem;
 
     for (const villager of villagers) {
         const inventory = villager.getComponent("minecraft:inventory");

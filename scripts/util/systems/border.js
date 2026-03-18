@@ -1,6 +1,7 @@
 import { system, world } from "@minecraft/server";
 import { default as config } from "../../config.js";
 import { getGameActive, getBorderCenter } from "../core/game.js";
+import { settings } from "../core/settings.js";
 
 // --- 警告とダメージ処理 ---
 system.runInterval(() => {
@@ -8,10 +9,10 @@ system.runInterval(() => {
     if (!getGameActive()) return;
 
     const players = world.getAllPlayers();
-    const radius = config.border.radius;
+    const radius = settings.borderRadius;
     const [cx, cy, cz] = getBorderCenter(); // 配列形式でデストラチャリング取得
-    const damageMultiplier = config.border.damageMultiplier || 0.5;
-    const warningSeconds = config.border.warningSeconds || 10;
+    const damageMultiplier = settings.borderDamage;
+    const warningSeconds = settings.borderWarning;
     const enabledDimensions = config.border.enabledDimensions || ["minecraft:overworld"];
 
     for (const player of players) {
@@ -67,7 +68,7 @@ system.runInterval(() => {
     if (!getGameActive()) return;
 
     const players = world.getAllPlayers();
-    const radius = config.border.radius;
+    const radius = settings.borderRadius;
     const [cx, cy, cz] = getBorderCenter(); // 配列形式でデストラチャリング取得
     const enabledDimensions = config.border.enabledDimensions || ["minecraft:overworld"];
 

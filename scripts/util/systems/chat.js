@@ -1,6 +1,5 @@
 import { world } from "@minecraft/server";
-
-const CHAT_DISTANCE = 20; // 近くの判定距離（ブロック数）
+import { settings } from "../core/settings.js";
 
 world.beforeEvents.chatSend.subscribe((event) => {
     // 1. デフォルトの全体チャットをキャンセルする（全員には見えなくなる）
@@ -14,7 +13,7 @@ world.beforeEvents.chatSend.subscribe((event) => {
     // 3. 送信者の位置の近くにいるプレイヤーを探す
     const nearbyPlayers = dimension.getPlayers({
         location: sender.location, // 送信者のいる場所
-        maxDistance: CHAT_DISTANCE // この距離（ブロック数）まで届く
+        maxDistance: settings.chatDistance // この距離（ブロック数）まで届く
     });
 
     // 4. 見つかった近くのプレイヤー一人ひとりにメッセージを送る

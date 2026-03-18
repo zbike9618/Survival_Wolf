@@ -1,10 +1,17 @@
 import { world, system } from "@minecraft/server";
-import { checkVillagerVictory, getGameActive } from "./util/core/game.js";
+import { checkVillagerVictory, getGameActive, incrementGameTicks } from "./util/core/game.js";
 
 import "./commands/commands.js";
 import "./events/playerDeath.js";
 import "./util/systems/chat.js";
 import "./util/systems/border.js";
+import "./util/systems/status.js";
+
+system.runInterval(() => {
+    if (getGameActive()) {
+        incrementGameTicks();
+    }
+}, 1);
 
 // 市民の勝利判定（アイテムチェック）を定期的に実行（20tick = 1秒ごと）
 system.runInterval(() => {
