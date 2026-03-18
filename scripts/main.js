@@ -1,9 +1,10 @@
 import { world, system } from "@minecraft/server";
-import { checkVillagerVictory, getGameActive } from "./util/victory.js";
+import { checkVillagerVictory, getGameActive } from "./util/core/game.js";
 
 import "./commands/commands.js";
 import "./events/playerDeath.js";
-import "./util/chat.js";
+import "./util/systems/chat.js";
+import "./util/systems/border.js";
 
 // 市民の勝利判定（アイテムチェック）を定期的に実行（20tick = 1秒ごと）
 system.runInterval(() => {

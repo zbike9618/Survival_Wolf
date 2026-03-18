@@ -1,6 +1,6 @@
 import * as server from "@minecraft/server";
 import { world, system } from "@minecraft/server";
-import { startGame, endGame } from "../util/victory.js";
+import { startGame, endGame, setBorderCenter } from "../util/core/game.js";
 
 server.system.beforeEvents.startup.subscribe(ev => {
     ev.customCommandRegistry.registerCommand({
@@ -19,6 +19,9 @@ server.system.beforeEvents.startup.subscribe(ev => {
 
                 // 勝利判定の状態をリセットして開始
                 startGame();
+                
+                // コマンド実行者の位置をボーダーの中心にする
+                setBorderCenter(player.location);
 
                 // プレイヤーの配列をシャッフル
                 const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
