@@ -19,7 +19,7 @@ server.system.beforeEvents.startup.subscribe(ev => {
 
                 // 勝利判定の状態をリセットして開始
                 startGame();
-                
+
                 // コマンド実行者の位置をボーダーの中心にする
                 setBorderCenter(player.location);
 
@@ -51,10 +51,9 @@ server.system.beforeEvents.startup.subscribe(ev => {
                 player.runCommand("gamemode survival @a");
 
                 const intaliitem = [
-                    "minecraft:stick",
-                    "minecraft:stick",
-                    "minecraft:stick",
-                    "minecraft:stick"
+                    "minecraft:wood_sword",
+                    "minecraft:wood_axe",
+                    "minecraft:wood_pickaxe"
                 ];
 
                 for (let i = 0; i < intaliitem.length; i++) {
@@ -89,7 +88,7 @@ server.system.beforeEvents.startup.subscribe(ev => {
                     p.removeTag("werewolf");
                     p.removeTag("villager");
                     p.removeTag("dead_player");
-                    
+
                     p.sendMessage("§eゲームが強制終了されました。");
                 });
 
@@ -98,4 +97,4 @@ server.system.beforeEvents.startup.subscribe(ev => {
             });
         }
     });
-});
+});

@@ -9,7 +9,7 @@ system.runInterval(() => {
 
     const players = world.getAllPlayers();
     const radius = config.border.radius;
-    const center = getBorderCenter(); // 動的に設定された中心を取得
+    const [cx, cy, cz] = getBorderCenter(); // 配列形式でデストラチャリング取得
     const damageMultiplier = config.border.damageMultiplier || 0.5;
     const warningSeconds = config.border.warningSeconds || 10;
     const enabledDimensions = config.border.enabledDimensions || ["minecraft:overworld"];
@@ -22,8 +22,8 @@ system.runInterval(() => {
         }
 
         const location = player.location;
-        const dx = Math.abs(location.x - center.x);
-        const dz = Math.abs(location.z - center.z);
+        const dx = Math.abs(location.x - cx);
+        const dz = Math.abs(location.z - cz);
         const distance = Math.max(dx, dz);
 
         if (distance > radius) {
@@ -68,7 +68,7 @@ system.runInterval(() => {
 
     const players = world.getAllPlayers();
     const radius = config.border.radius;
-    const center = getBorderCenter(); // 動的に設定された中心を取得
+    const [cx, cy, cz] = getBorderCenter(); // 配列形式でデストラチャリング取得
     const enabledDimensions = config.border.enabledDimensions || ["minecraft:overworld"];
 
     // 境界線に近い場合、パーティクルを表示
@@ -85,28 +85,28 @@ system.runInterval(() => {
         const pX = location.x;
 
         // X軸の境界 (East/West)
-        const distToEast = Math.abs(location.x - (center.x + radius));
-        const distToWest = Math.abs(location.x - (center.x - radius));
+        const distToEast = Math.abs(location.x - (cx + radius));
+        const distToWest = Math.abs(location.x - (cx - radius));
 
         // Z軸の境界 (South/North)
-        const distToSouth = Math.abs(location.z - (center.z + radius));
-        const distToNorth = Math.abs(location.z - (center.z - radius));
+        const distToSouth = Math.abs(location.z - (cz + radius));
+        const distToNorth = Math.abs(location.z - (cz - radius));
 
-        // East Border (X = center + radius)
+        // East Border (X = cx + radius)
         if (distToEast < VISUAL_DISTANCE) {
-            spawnWallParticles(player.dimension, center.x + radius, pY, pZ, "z", renderRange, PARTICLE);
+            spawnWallParticles(player.dimension, cx + radius, pY, pZ, "z", renderRange, PARTICLE);
         }
-        // West Border (X = center - radius)
+        // West Border (X = cx - radius)
         if (distToWest < VISUAL_DISTANCE) {
-            spawnWallParticles(player.dimension, center.x - radius, pY, pZ, "z", renderRange, PARTICLE);
+            spawnWallParticles(player.dimension, cx - radius, pY, pZ, "z", renderRange, PARTICLE);
         }
-        // South Border (Z = center + radius)
+        // South Border (Z = cz + radius)
         if (distToSouth < VISUAL_DISTANCE) {
-            spawnWallParticles(player.dimension, center.z + radius, pY, pX, "x", renderRange, PARTICLE);
+            spawnWallParticles(player.dimension, cz + radius, pY, pX, "x", renderRange, PARTICLE);
         }
-        // North Border (Z = center - radius)
+        // North Border (Z = cz - radius)
         if (distToNorth < VISUAL_DISTANCE) {
-            spawnWallParticles(player.dimension, center.z - radius, pY, pX, "x", renderRange, PARTICLE);
+            spawnWallParticles(player.dimension, cz - radius, pY, pX, "x", renderRange, PARTICLE);
         }
     }
 }, 5); // 可視化判定: 10 tick (0.5秒)

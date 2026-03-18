@@ -2,7 +2,7 @@ import { world, system, GameMode } from "@minecraft/server";
 
 // ゲームが進行中かどうかを管理するフラグ
 let isGameActive = false;
-let borderCenter = { x: 0, z: 0 };
+let borderCenter = { x: 0, y: 0, z: 0 };
 
 /**
  * ゲームを開始状態にする
@@ -29,14 +29,15 @@ export function getGameActive() {
  * ボーダーの中心座標を設定する
  */
 export function setBorderCenter(loc) {
-    borderCenter = { x: loc.x, z: loc.z };
+    borderCenter = { x: loc.x, y: loc.y, z: loc.z };
 }
 
 /**
  * ボーダーの中心座標を取得する
+ * 配列形式 [x, y, z] で返します
  */
 export function getBorderCenter() {
-    return borderCenter;
+    return [borderCenter.x, borderCenter.y, borderCenter.z];
 }
 
 /**
@@ -46,11 +47,11 @@ export function getBorderCenter() {
  */
 function announceVictory(message, title) {
     isGameActive = false; // 勝利が決まったら判定を停止する
-    
+
     // 全プレイヤーの役職リストを作成
     const players = world.getAllPlayers();
     let resultMessage = "\n§l§e--- 全員の役職 ---§r\n";
-    
+
     players.forEach(p => {
         const role = p.hasTag("werewolf") ? "§c人狼§r" : "§b市民§r";
         resultMessage += `§7- §f${p.name}: ${role}\n`;
@@ -97,7 +98,6 @@ export function checkVillagerVictory() {
     // 市民が一人もいない場合は判定しない
     if (villagers.length === 0) return false;
 
-    // 適当なアイテムとして「ダイヤモンド」を勝利条件にします
     const victoryItem = "minecraft:diamond_boots";
 
     for (const villager of villagers) {
