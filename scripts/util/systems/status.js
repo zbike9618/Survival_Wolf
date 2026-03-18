@@ -1,5 +1,6 @@
 import { world, system } from "@minecraft/server";
 import { getGameActive, getGameTicks } from "../core/game.js";
+import { settings } from "../core/settings.js";
 
 /**
  * 経過日に応じたステータス表示とエフェクト付与
@@ -38,6 +39,13 @@ system.runInterval(() => {
         
         // 人狼 (werewolf) 
         if (player.hasTag("werewolf")) {
+            // --- 2. 夜間強化 (移動速度・暗視) ---
+            if (settings.werewolfNightPowerEnabled && !isDay) {
+                player.addEffect("speed", 100, { amplifier: 0, showParticles: false });
+                player.addEffect("night_vision", 400, { amplifier: 0, showParticles: false });
+            }
+
+            // --- 1. 経過日数による強化 ---
             // 2日目以降: 耐性 1 (amplifier: 0)
             if (day >= 2) {
                 player.addEffect("resistance", 100, { amplifier: 0, showParticles: false });

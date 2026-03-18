@@ -28,43 +28,64 @@ server.system.beforeEvents.startup.subscribe(ev => {
                 // プレイヤーの配列をシャッフル
                 const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
 
-                // 人狼の数（現在は1人）
-                const werewolfCount = 1;
+                // 人狼と市民の数
+                const wCount = Math.max(1, settings.werewolfCount);
+                const vCount = Math.max(1, settings.villagerCount);
+                const totalRequired = wCount + vCount;
+
+                if (allPlayers.length < totalRequired) {
+                    player.sendMessage(`§cエラー: プレイヤー数が足りません（${totalRequired}人必要です）。`);
+                    return;
+                }
+
+                // 墓標の削除
+                world.getDimension("overworld").getEntities({ tags: ["sv_grave"] }).forEach(e => e.remove());
 
                 shuffledPlayers.forEach((p, index) => {
-                    // 以前の役職タグがあればリセットする
                     p.removeTag("werewolf");
                     p.removeTag("villager");
-                    p.removeTag("dead_player"); // 生死タグもリセット
+                    p.removeTag("dead_player");
 
-                    if (index < werewolfCount) {
+                    if (index < wCount) {
                         p.addTag("werewolf");
                         p.sendMessage("§cあなたは【人狼】です。市民を全滅させてください。");
                         p.onScreenDisplay.setTitle("§cあなたは【人狼】です");
-                    } else {
+                    } else if (index < totalRequired) {
                         p.addTag("villager");
                         p.sendMessage("§bあなたは【市民】です。人狼を見つけ出してください。");
                         p.onScreenDisplay.setTitle("§bあなたは【市民】です");
+                    } else {
+                        // 設定人数より多い場合は観戦者扱いにする
+                        p.addTag("dead_player");
+                        p.runCommand("gamemode spectator");
+                        p.sendMessage("§7あなたは今回のゲームには参加しません（観戦者）。");
                     }
                 });
 
-                player.sendMessage("ゲームを開始しました。プレイヤーに役職を割り当てました。");
+                player.sendMessage(`ゲームを開始しました（人狼:${wCount}人、市民:${vCount}人）。`);
                 player.runCommand("tp @a @s");
-                player.runCommand("gamemode survival @a");
+                // 参加者のみサバイバルにする
+                world.getAllPlayers().forEach(p => {
+                    if (p.hasTag("werewolf") || p.hasTag("villager")) {
+                        p.runCommand("gamemode survival");
+                    }
+                });
                 player.runCommand("effect @a instant_health 5 255 true");
                 player.runCommand("effect @a saturation 5 255 true");
                 player.runCommand("effect @a clear");
                 player.runCommand("clear @a");
 
                 const intaliitem = settings.initialItems;
-
                 for (let i = 0; i < intaliitem.length; i++) {
-                    player.runCommand(`give @a ${intaliitem[i]}`);
+                    world.getAllPlayers().filter(p => p.hasTag("werewolf") || p.hasTag("villager")).forEach(p => {
+                        p.runCommand(`give @s ${intaliitem[i]}`);
+                    });
                 }
+                player.runCommand("kill @e[type=armor_stand,tag=sv_grave]");
 
 
                 player.runCommand("setblock ~ ~ ~ crafting_table");
-                player.runCommand("setworldspawn ~ ~1 ~")
+                player.runCommand("setworldspawn ~ ~1 ~");
             });
         }
     });
@@ -85,6 +106,7 @@ server.system.beforeEvents.startup.subscribe(ev => {
 
                 // 勝利判定の状態をリセットして終了
                 endGame();
+                player.runCommand("kill @e[type=armor_stand,tag=sv_grave]");
 
                 allPlayers.forEach(p => {
                     // 全プレイヤーの役職タグと生死タグを消去
@@ -97,6 +119,8 @@ server.system.beforeEvents.startup.subscribe(ev => {
 
                 player.sendMessage("ゲームを終了しました。全員の役職をリセットしました。");
                 world.getDimension("overworld").runCommand("gamemode survival @a");
+                // 墓標の削除
+                world.getDimension("overworld").getEntities({ tags: ["sv_grave"] }).forEach(e => e.remove());
             });
         }
     });
@@ -129,7 +153,8 @@ function showMainMenu(player) {
         .button("§bボーダー設定")
         .button("§6勝利条件アイテム")
         .button("§eチャット設定")
-        .button("§a初期装備設定");
+        .button("§a初期装備設定")
+        .button("§dゲームルール設定");
 
     menu.show(player).then(response => {
         if (response.canceled) return;
@@ -138,7 +163,34 @@ function showMainMenu(player) {
             case 1: showVictorySettings(player); break;
             case 2: showChatSettings(player); break;
             case 3: showEquipmentSettings(player); break;
+            case 4: showGameSettings(player); break;
         }
+    });
+}
+
+/**
+ * ゲームルール設定
+ */
+function showGameSettings(player) {
+    const current = settings.getAll();
+    const form = new ModalFormData()
+        .title("§lゲームルール設定")
+        .slider("人狼の数", 1, 5, { defaultValue: current.werewolfCount })
+        .slider("市民の数", 1, 15, { defaultValue: current.villagerCount })
+        .toggle("人狼の夜間強化 (移動速度・暗視)", { defaultValue: current.werewolfNightPowerEnabled })
+        .toggle("死亡調査システム (墓標)", { defaultValue: current.deathInvestigationEnabled });
+
+    form.show(player).then(response => {
+        if (response.canceled) return showMainMenu(player);
+        const [wCount, vCount, nPower, dInvest] = response.formValues;
+
+        const updated = settings.getAll();
+        updated.werewolfCount = wCount;
+        updated.villagerCount = vCount;
+        updated.werewolfNightPowerEnabled = nPower;
+        updated.deathInvestigationEnabled = dInvest;
+        saveSettings(updated);
+        player.sendMessage("§a§l[設定] §rゲームルール設定を保存しました。");
     });
 }
 
@@ -194,13 +246,15 @@ function showChatSettings(player) {
     const current = settings.getAll();
     const form = new ModalFormData()
         .title("§lチャット設定")
+        .toggle("近距離チャットを有効にする", { defaultValue: current.nearbyChatEnabled })
         .slider("有効範囲", 5, 100, { defaultValue: current.chatDistance });
 
     form.show(player).then(response => {
         if (response.canceled) return showMainMenu(player);
-        const [dist] = response.formValues;
+        const [enabled, dist] = response.formValues;
 
         const updated = settings.getAll();
+        updated.nearbyChatEnabled = enabled;
         updated.chatDistance = dist;
         saveSettings(updated);
         player.sendMessage("§a§l[設定] §rチャット設定を保存しました。");

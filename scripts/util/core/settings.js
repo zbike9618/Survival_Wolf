@@ -10,6 +10,11 @@ const DEFAULT_SETTINGS = {
     borderDamage: 0.5,
     borderWarning: 10,
     chatDistance: 20,
+    nearbyChatEnabled: true,
+    werewolfCount: 1,
+    villagerCount: 4,
+    werewolfNightPowerEnabled: true,
+    deathInvestigationEnabled: true,
     victoryItem: "minecraft:diamond_boots",
     initialItems: [
         "minecraft:wooden_sword",
@@ -49,6 +54,11 @@ export const settings = {
     get borderDamage() { return getAllSettings().borderDamage; },
     get borderWarning() { return getAllSettings().borderWarning; },
     get chatDistance() { return getAllSettings().chatDistance; },
+    get nearbyChatEnabled() { return getAllSettings().nearbyChatEnabled; },
+    get werewolfCount() { return getAllSettings().werewolfCount; },
+    get villagerCount() { return getAllSettings().villagerCount; },
+    get werewolfNightPowerEnabled() { return getAllSettings().werewolfNightPowerEnabled; },
+    get deathInvestigationEnabled() { return getAllSettings().deathInvestigationEnabled; },
     get victoryItem() { return getAllSettings().victoryItem; },
     get initialItems() { return getAllSettings().initialItems; },
     

@@ -17,7 +17,7 @@ system.runInterval(() => {
 system.runInterval(() => {
     checkVillagerVictory();
     world.getDimension("overworld").runCommand("clear @a crafting_table");
-}, 20);
+}, 1);
 
 world.beforeEvents.playerBreakBlock.subscribe((event) => {
     const block = event.block;
