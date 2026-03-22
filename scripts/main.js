@@ -16,6 +16,7 @@ system.runInterval(() => {
 // 市民の勝利判定（アイテムチェック）を定期的に実行（20tick = 1秒ごと）
 system.runInterval(() => {
     checkVillagerVictory();
+    world.getDimension("overworld").runCommand("effect @a[tag=dead_player] night_vision infinite 1 true");
     world.getDimension("overworld").runCommand("clear @a crafting_table");
 }, 1);
 
@@ -28,3 +29,12 @@ world.beforeEvents.playerBreakBlock.subscribe((event) => {
         player.sendMessage("§c作業台を壊すことはできません");
     }
 });
+
+// 爆発から作業台を保護
+world.beforeEvents.explosion.subscribe((event) => {
+    if (getGameActive()) {
+        const impactedBlocks = event.getImpactedBlocks();
+        const safeBlocks = impactedBlocks.filter(b => b.typeId !== "minecraft:crafting_table");
+        event.setImpactedBlocks(safeBlocks);
+    }
+});
