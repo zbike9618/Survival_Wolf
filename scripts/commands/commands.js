@@ -29,13 +29,26 @@ server.system.beforeEvents.startup.subscribe(ev => {
                 const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
 
                 // 人狼と市民の数
-                const wCount = Math.max(1, settings.werewolfCount);
-                const vCount = Math.max(1, settings.villagerCount);
-                const totalRequired = wCount + vCount;
+                let wCount = 1;
+                let vCount = 1;
+                let totalRequired = 0;
 
-                if (allPlayers.length < totalRequired) {
-                    player.sendMessage(`§cエラー: プレイヤー数が足りません（${totalRequired}人必要です）。`);
-                    return;
+                if (settings.autoRoleDistributionEnabled) {
+                    // 自動配分の場合: プレイヤー数に応じて調整（4人に1人が人狼の割合）
+                    const totalPlayers = allPlayers.length;
+                    wCount = Math.max(1, Math.floor(totalPlayers / 4));
+                    vCount = Math.max(1, totalPlayers - wCount);
+                    totalRequired = totalPlayers; // 全員参加
+                } else {
+                    // 手動配分の場合
+                    wCount = Math.max(1, settings.werewolfCount);
+                    vCount = Math.max(1, settings.villagerCount);
+                    totalRequired = wCount + vCount;
+
+                    if (allPlayers.length < totalRequired) {
+                        player.sendMessage(`§cエラー: プレイヤー数が足りません（${totalRequired}人必要です）。`);
+                        return;
+                    }
                 }
 
                 // 墓標の削除
@@ -70,10 +83,10 @@ server.system.beforeEvents.startup.subscribe(ev => {
                         p.runCommand("gamemode survival");
                     }
                 });
-                player.runCommand("effect @a instant_health 5 255 true");
-                player.runCommand("effect @a saturation 5 255 true");
                 player.runCommand("effect @a clear");
                 player.runCommand("clear @a");
+                player.runCommand("effect @a instant_health 5 255 true");
+                player.runCommand("effect @a saturation 5 255 true");
 
                 const intaliitem = settings.initialItems;
                 for (let i = 0; i < intaliitem.length; i++) {
@@ -175,16 +188,18 @@ function showGameSettings(player) {
     const current = settings.getAll();
     const form = new ModalFormData()
         .title("§lゲームルール設定")
-        .slider("人狼の数", 1, 5, { defaultValue: current.werewolfCount })
-        .slider("市民の数", 1, 15, { defaultValue: current.villagerCount })
+        .toggle("役職の自動人数調整", { defaultValue: current.autoRoleDistributionEnabled })
+        .slider("人狼の数 (自動オフ時)", 1, 5, { defaultValue: current.werewolfCount })
+        .slider("市民の数 (自動オフ時)", 1, 15, { defaultValue: current.villagerCount })
         .toggle("人狼の夜間強化 (移動速度・暗視)", { defaultValue: current.werewolfNightPowerEnabled })
         .toggle("死亡調査システム (墓標)", { defaultValue: current.deathInvestigationEnabled });
 
     form.show(player).then(response => {
         if (response.canceled) return showMainMenu(player);
-        const [wCount, vCount, nPower, dInvest] = response.formValues;
+        const [autoDist, wCount, vCount, nPower, dInvest] = response.formValues;
 
         const updated = settings.getAll();
+        updated.autoRoleDistributionEnabled = autoDist;
         updated.werewolfCount = wCount;
         updated.villagerCount = vCount;
         updated.werewolfNightPowerEnabled = nPower;

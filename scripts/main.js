@@ -1,5 +1,5 @@
 import { world, system } from "@minecraft/server";
-import { checkVillagerVictory, getGameActive, incrementGameTicks } from "./util/core/game.js";
+import { checkVillagerVictory, getGameActive, incrementGameTicks, getBorderCenter } from "./util/core/game.js";
 
 import "./commands/commands.js";
 import "./events/playerDeath.js";
@@ -12,6 +12,28 @@ system.runInterval(() => {
         incrementGameTicks();
     }
 }, 1);
+
+// 作業台の位置にビーコンの光（パーティクルの柱）を表示する
+system.runInterval(() => {
+    if (getGameActive()) {
+        const center = getBorderCenter();
+        const dim = world.getDimension("overworld");
+        
+        // 作業台の中心座標を計算（ブロックの中心座標）
+        const bx = Math.floor(center[0]) + 0.5;
+        const by = Math.floor(center[1]) + 1; // 作業台のすぐ上から開始
+        const bz = Math.floor(center[2]) + 0.5;
+
+        // 上に向かってパーティクルを発生させ、光の柱をシミュレート
+        for (let i = 0; i < 60; i += 1.5) {
+            try {
+                dim.spawnParticle("minecraft:endrod", { x: bx, y: by + i, z: bz });
+            } catch (e) {
+                // ディメンションがロードされていない場合などのエラーを無視する
+            }
+        }
+    }
+}, 10);
 
 // 市民の勝利判定（アイテムチェック）を定期的に実行（20tick = 1秒ごと）
 system.runInterval(() => {
